@@ -1,5 +1,7 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 from .models import User
 
 class SignupSerializer(serializers.ModelSerializer):
@@ -31,4 +33,15 @@ class LoginSerializer(serializers.Serializer):
         if not user.is_active:
             raise serializers.ValidationError('비활성화된 계정입니다.')
         data['user'] = user
+        return data
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+    def validate(self, data):
+        try:
+            token = RefreshToken(data['refresh'])
+            token.blacklist()
+        except TokenError:
+            raise serializers.ValidationError('유효하지 않은 토큰입니다.')
         return data

@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import SignupSerializer, LoginSerializer
+from .serializers import SignupSerializer, LoginSerializer, LogoutSerializer
 
 # Create your views here.
 @api_view(['POST'])
@@ -35,6 +35,16 @@ def login(request):
                 'email': user.email,
                 'nickname': user.nickname,
             },
+            status=status.HTTP_200_OK
+        )
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def logout(request):
+    serializer = LogoutSerializer(data=request.data)
+    if serializer.is_valid():
+        return Response(
+            {'message': '로그아웃 되었습니다.'},
             status=status.HTTP_200_OK
         )
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
