@@ -30,6 +30,8 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
     'accounts',
     'users',
+    'recipes',
+    'medias',
     
     'rest_framework',
     'rest_framework_simplejwt',
