@@ -29,6 +29,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'accounts',
+    'users',
     
     'rest_framework',
     'rest_framework_simplejwt',
