@@ -11,6 +11,7 @@ class Recipe(models.Model):
     cook_time = models.PositiveIntegerField(help_text='분 단위', null=True, blank=True)
     is_public = models.BooleanField(default=True)
     like_count = models.IntegerField(default=0)
+    save_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -20,6 +21,14 @@ class Recipe(models.Model):
 class RecipeLike(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='likes')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='liked_recipes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('recipe', 'user')
+        
+class RecipeSave(models.Model):
+    recipe     = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='saves')
+    user       = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='saved_recipes')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

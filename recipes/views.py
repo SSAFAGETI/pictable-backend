@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from .models import Recipe, RecipeLike
+from .models import Recipe, RecipeLike, RecipeSave
 from .serializers import RecipeSerializer
 
 
@@ -68,3 +68,19 @@ def recipe_like(request, pk):
     recipe.like_count += 1
     recipe.save()
     return Response({'liked': True, 'like_count': recipe.like_count}, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def recipe_save(request, pk):
+    recipe = get_object_or_404(Recipe, pk=pk)
+    save, created = RecipeSave.objects.get_or_create(recipe=recipe, user=request.user)
+
+    if not created:
+        save.delete()
+        recipe.save_count -= 1
+        recipe.save()
+        return Response({'saved': False, 'save_count': recipe.save_count})
+
+    recipe.save_count += 1
+    recipe.save()
+    return Response({'saved': True, 'save_count': recipe.save_count}, status=status.HTTP_201_CREATED)

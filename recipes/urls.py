@@ -5,4 +5,5 @@ urlpatterns = [
     path('', views.recipe_list, name='recipe-list'),
     path('<int:pk>/', views.recipe_detail, name='recipe-detail'),
     path('<int:pk>/like/', views.recipe_like, name='recipe-like'),
+    path('<int:pk>/save/', views.recipe_save, name='recipe-save'),
 ]
