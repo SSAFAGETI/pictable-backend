@@ -27,6 +27,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'id', 'author', 'title', 'description',
             'thumbnail_media', 'cook_time', 'servings',
             'is_public', 'ingredients', 'steps',
+            'like_count',
             'created_at', 'updated_at',
         ]
         read_only_fields = ['author', 'created_at', 'updated_at']
