@@ -3,8 +3,8 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from .models import Recipe, RecipeLike, RecipeSave
-from .serializers import RecipeSerializer
+from .models import Recipe, RecipeLike, RecipeSave, Comment
+from .serializers import RecipeSerializer, CommentSerializer
 
 
 @api_view(['GET', 'POST'])
@@ -84,3 +84,67 @@ def recipe_save(request, pk):
     recipe.save_count += 1
     recipe.save()
     return Response({'saved': True, 'save_count': recipe.save_count}, status=status.HTTP_201_CREATED)
+
+# 댓글 목록 조회 / 작성
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def comment_list(request, pk):
+    recipe = get_object_or_404(Recipe, pk=pk)
+
+    if request.method == 'GET':
+        comments = Comment.objects.filter(
+            recipe=recipe,
+            parent_comment=None,  # 답글 제외하고 댓글만
+            deleted_at=None
+        ).prefetch_related('replies')
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
+
+    if request.method == 'POST':
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(author=request.user, recipe=recipe)
+            recipe.comment_count += 1
+            recipe.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# 답글 작성
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def reply_create(request, pk, comment_pk):
+    recipe  = get_object_or_404(Recipe, pk=pk)
+    comment = get_object_or_404(Comment, pk=comment_pk, recipe=recipe, parent_comment=None)
+
+    serializer = CommentSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(author=request.user, recipe=recipe, parent_comment=comment)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# 댓글/답글 수정 / 삭제
+@api_view(['PATCH', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def comment_detail(request, pk, comment_pk):
+    comment = get_object_or_404(Comment, pk=comment_pk, recipe__id=pk, deleted_at=None)
+
+    # 수정/삭제는 작성자만
+    if comment.author != request.user:
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
+    if request.method == 'PATCH':
+        serializer = CommentSerializer(comment, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            recipe.comment_count += 1
+            recipe.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    if request.method == 'DELETE':
+        from django.utils import timezone
+        comment.deleted_at = timezone.now()
+        comment.save()
+        recipe.comment_count -= 1
+        recipe.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)

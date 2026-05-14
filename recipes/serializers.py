@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Recipe, RecipeStep, RecipeIngredient
+from .models import Recipe, RecipeStep, RecipeIngredient, Comment
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
@@ -25,7 +25,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'id', 'author', 'title', 'description',
             'thumbnail_media', 'cook_time', 'servings',
             'is_public', 'ingredients', 'steps',
-            'like_count', 'save_count',
+            'like_count', 'save_count', 'comment_count',
             'created_at', 'updated_at',
         ]
         read_only_fields = ['author', 'created_at', 'updated_at']
@@ -66,3 +66,19 @@ class RecipeSerializer(serializers.ModelSerializer):
                 RecipeStep.objects.create(recipe=instance, **step)
 
         return instance
+    
+class ReplySerializer(serializers.ModelSerializer):
+    author = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model  = Comment
+        fields = ['id', 'author', 'content', 'created_at', 'updated_at']
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author  = serializers.StringRelatedField(read_only=True)
+    replies = ReplySerializer(many=True, read_only=True)
+
+    class Meta:
+        model  = Comment
+        fields = ['id', 'author', 'content', 'replies', 'created_at', 'updated_at']
