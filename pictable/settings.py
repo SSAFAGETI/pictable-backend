@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'users',
     'recipes',
     'medias',
+    'feeds',
     
     'rest_framework',
     'rest_framework_simplejwt',
