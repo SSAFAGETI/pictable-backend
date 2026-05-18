@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from django.conf import settings
 import random
 
 ADJECTIVES = ['빠른', '용감한', '신비한', '날쌘', '강력한', '차가운', '뜨거운', '조용한', '영리한', '씩씩한']
@@ -57,3 +58,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         
     def __str__(self):
         return self.email
+    
+class OauthAccount(models.Model):
+    user             = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='oauth_accounts')
+    provider         = models.CharField(max_length=30)
+    provider_user_id = models.CharField(max_length=255)
+    created_at       = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('provider', 'provider_user_id')

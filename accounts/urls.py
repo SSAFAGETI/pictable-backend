@@ -7,4 +7,5 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
     path('refresh/', TokenRefreshView.as_view(), name='refresh'),
+    path('google/', views.google_login, name='google-login'),
 ]
