@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Recipe, RecipeStep, RecipeIngredient, Comment, Tag
+from .models import Recipe, RecipeStep, RecipeIngredient, RecipeImage, Comment, Tag
+from medias.serializers import MediaFileSerializer
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,6 +11,13 @@ class RecipeStepSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecipeStep
         fields = ['id', 'order', 'description', 'image']
+        
+class RecipeImageSerializer(serializers.ModelSerializer):
+    media_file = MediaFileSerializer(read_only=True)
+
+    class Meta:
+        model  = RecipeImage
+        fields = ['id', 'media_file', 'sort_order']
         
 class TagSerializer(serializers.ModelSerializer):
     class Meta:

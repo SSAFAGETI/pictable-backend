@@ -17,6 +17,7 @@ class Recipe(models.Model):
     servings = models.PositiveSmallIntegerField(default=2)
     cook_time = models.PositiveIntegerField(help_text='분 단위', null=True, blank=True)
     is_public = models.BooleanField(default=True)
+    source_type = models.CharField(max_length=20, default='user')
     like_count = models.IntegerField(default=0)
     save_count = models.IntegerField(default=0)
     comment_count = models.IntegerField(default=0)
@@ -44,11 +45,17 @@ class RecipeSave(models.Model):
     class Meta:
         unique_together = ('recipe', 'user')
 
+class RecipeImage(models.Model):
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='images')
+    media_file = models.ForeignKey('medias.MediaFile', on_delete=models.CASCADE)
+    sort_order = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 class RecipeStep(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='steps')
     order = models.PositiveSmallIntegerField()
     description = models.TextField()
-    image = models.ImageField(upload_to='recipes/steps/', blank=True, null=True)
+    image = models.ForeignKey('medias.MediaFile', on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         ordering = ['order']

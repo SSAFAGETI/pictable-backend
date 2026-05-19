@@ -5,7 +5,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import Recipe, RecipeLike, RecipeSave, Comment, RecipeIngredient
 from .serializers import RecipeSerializer, CommentSerializer
-from notifications.utils import notify_welcome
+from notifications.utils import notify_welcome, notify_like, notify_comment, notify_reply
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
@@ -113,7 +113,7 @@ def comment_list(request, pk):
     if request.method == 'POST':
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(author=request.user, recipe=recipe)
+            comment = serializer.save(author=request.user, recipe=recipe)
             recipe.comment_count += 1
             recipe.save()
             notify_comment(actor=request.user, recipe=recipe, comment=comment)
