@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from .models import Recipe, RecipeLike, RecipeSave, Comment
+from .models import Recipe, RecipeLike, RecipeSave, Comment, RecipeIngredient
 from .serializers import RecipeSerializer, CommentSerializer
 from notifications.utils import notify_welcome
 
@@ -85,6 +85,15 @@ def recipe_save(request, pk):
     recipe.save_count += 1
     recipe.save()
     return Response({'saved': True, 'save_count': recipe.save_count}, status=status.HTTP_201_CREATED)
+
+@api_view(['GET'])
+def ingredient_list(request):
+    search = request.query_params.get('search', '')
+    ingredients = RecipeIngredient.objects.filter(
+        name__icontains=search
+    ).values('id', 'name', 'amount').distinct().order_by('name')[:50]
+
+    return Response(list(ingredients))
 
 # 댓글 목록 조회 / 작성
 @api_view(['GET', 'POST'])
