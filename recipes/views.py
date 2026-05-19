@@ -5,7 +5,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import Recipe, RecipeLike, RecipeSave, Comment
 from .serializers import RecipeSerializer, CommentSerializer
-
+from notifications.utils import notify_welcome
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
@@ -67,6 +67,7 @@ def recipe_like(request, pk):
 
     recipe.like_count += 1
     recipe.save()
+    notify_like(actor=request.user, recipe=recipe)
     return Response({'liked': True, 'like_count': recipe.like_count}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
@@ -106,6 +107,7 @@ def comment_list(request, pk):
             serializer.save(author=request.user, recipe=recipe)
             recipe.comment_count += 1
             recipe.save()
+            notify_comment(actor=request.user, recipe=recipe, comment=comment)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -118,7 +120,8 @@ def reply_create(request, pk, comment_pk):
 
     serializer = CommentSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save(author=request.user, recipe=recipe, parent_comment=comment)
+        reply = serializer.save(author=request.user, recipe=recipe, parent_comment=comment)
+        notify_reply(actor=request.user, recipe=recipe, comment=comment)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

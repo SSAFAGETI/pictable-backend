@@ -6,7 +6,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 import requests
-
+from notifications.utils import notify_welcome
 from .models import OauthAccount
 from .serializers import SignupSerializer, LoginSerializer, LogoutSerializer
 
@@ -18,6 +18,7 @@ def signup(request):
     serializer = SignupSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
+        notify_welcome(user)
         return Response(
             {
                 'message': '회원가입이 완료되었습니다.',
@@ -60,7 +61,7 @@ def logout(request):
 @permission_classes([AllowAny])
 def google_login(request):
     code = request.data.get('code')
-    redirect_uri = redirect_uri = settings.GOOGLE_REDIRECT_URI
+    redirect_uri = settings.GOOGLE_REDIRECT_URI
     
     if not code:
         return Response({'error': 'code가 없습니다.'}, status=status.HTTP_400_BAD_REQUEST)
