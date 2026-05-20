@@ -67,3 +67,11 @@ class OauthAccount(models.Model):
 
     class Meta:
         unique_together = ('provider', 'provider_user_id')
+        
+class UserFollow(models.Model):
+    follower   = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='following')
+    following  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='followers')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('follower', 'following')
