@@ -61,7 +61,7 @@ def logout(request):
 @permission_classes([AllowAny])
 def google_login(request):
     code = request.data.get('code')
-    redirect_uri = settings.GOOGLE_REDIRECT_URI
+    redirect_uri = request.data.get('redirect_uri', settings.GOOGLE_REDIRECT_URI)
     
     if not code:
         return Response({'error': 'code가 없습니다.'}, status=status.HTTP_400_BAD_REQUEST)
