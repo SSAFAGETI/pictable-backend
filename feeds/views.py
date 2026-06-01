@@ -26,11 +26,11 @@ def recipe_feed(request):
     # 정렬
     sort = request.query_params.get('sort', 'latest')
     if sort == 'popular':
-        queryset = queryset.order_by('-like_count')
+        queryset = queryset.order_by('-like_count', '-id')
     elif sort == 'liked':
-        queryset = queryset.order_by('-like_count')
+        queryset = queryset.order_by('-like_count', '-id')
     else:  # latest
-        queryset = queryset.order_by('-created_at')
+        queryset = queryset.order_by('-created_at', '-id')
 
     serializer = RecipeSerializer(queryset, many=True)
     return Response(serializer.data)
