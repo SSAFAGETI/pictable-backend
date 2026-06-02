@@ -8,6 +8,8 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'amount']
 
 class RecipeStepSerializer(serializers.ModelSerializer):
+    image = MediaFileSerializer(read_only=True) # ← ID → URL 포함 객체로 변경
+
     class Meta:
         model = RecipeStep
         fields = ['id', 'order', 'description', 'image']
@@ -30,7 +32,8 @@ class RecipeSerializer(serializers.ModelSerializer):
     author      = serializers.StringRelatedField(read_only=True)
     tags        = TagSerializer(many=True, read_only=True)
     tag_ids     = serializers.PrimaryKeyRelatedField(many=True, write_only=True, queryset=Tag.objects.all(), source='tags', required=False)
-    
+    thumbnail_media = MediaFileSerializer(read_only=True)
+
     class Meta:
         model  = Recipe
         fields = [

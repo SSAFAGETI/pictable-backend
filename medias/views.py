@@ -8,6 +8,7 @@ from .serializers import MediaFileSerializer
 from .tasks import run_ingredient_detection
 import uuid
 import os
+from django.conf import settings
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -20,6 +21,16 @@ def media_upload(request):
 
     ext = os.path.splitext(file.name)[1]
     safe_name = f"{uuid.uuid4().hex}{ext}"
+
+    # 디렉토리 생성
+    save_dir = os.path.join(settings.MEDIA_ROOT, purpose)
+    os.makedirs(save_dir, exist_ok=True)
+
+    # 실제 파일 디스크에 저장
+    save_path = os.path.join(save_dir, safe_name)
+    with open(save_path, 'wb+') as f:
+        for chunk in file.chunks():
+            f.write(chunk)
 
     url = f'/media/{purpose}/{safe_name}'
 
