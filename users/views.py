@@ -8,6 +8,7 @@ from recipes.models import Recipe, RecipeLike, RecipeSave
 from recipes.serializers import RecipeSerializer
 from accounts.models import User
 from notifications.utils import notify_follow
+from pagination import FeedCursorPagination
 
 @api_view(['GET', 'PATCH'])
 @permission_classes([IsAuthenticated])
@@ -26,25 +27,45 @@ def me(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def my_saved_recipes(request):
-    saved = RecipeSave.objects.filter(user=request.user).select_related('recipe')
-    recipes = [s.recipe for s in saved]
-    serializer = RecipeSerializer(recipes, many=True)
-    return Response(serializer.data)
+    # 리스트 변환 제거 → queryset 직접 사용
+    queryset = Recipe.objects.filter(
+        saves__user=request.user
+    ).select_related('author', 'thumbnail_media') \
+     .prefetch_related('ingredients', 'steps', 'tags') \
+     .order_by('-saves__created_at', '-id')
+
+    paginator = FeedCursorPagination()
+    page = paginator.paginate_queryset(queryset, request)
+    serializer = RecipeSerializer(page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def my_liked_recipes(request):
-    liked = RecipeLike.objects.filter(user=request.user).select_related('recipe')
-    recipes = [l.recipe for l in liked]
-    serializer = RecipeSerializer(recipes, many=True)
-    return Response(serializer.data)
+    queryset = Recipe.objects.filter(
+        likes__user=request.user
+    ).select_related('author', 'thumbnail_media') \
+     .prefetch_related('ingredients', 'steps', 'tags') \
+     .order_by('-likes__created_at', '-id')
+
+    paginator = FeedCursorPagination()
+    page = paginator.paginate_queryset(queryset, request)
+    serializer = RecipeSerializer(page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def my_recipes(request):
-    recipes = Recipe.objects.filter(author=request.user).order_by('-created_at')
-    serializer = RecipeSerializer(recipes, many=True)
-    return Response(serializer.data)
+    queryset = Recipe.objects.filter(
+        author=request.user
+    ).select_related('author', 'thumbnail_media') \
+     .prefetch_related('ingredients', 'steps', 'tags') \
+     .order_by('-created_at', '-id')
+
+    paginator = FeedCursorPagination()
+    page = paginator.paginate_queryset(queryset, request)
+    serializer = RecipeSerializer(page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

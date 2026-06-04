@@ -138,6 +138,7 @@ def reply_create(request, pk, comment_pk):
 @api_view(['PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def comment_detail(request, pk, comment_pk):
+    recipe = get_object_or_404(Recipe, pk=pk)
     comment = get_object_or_404(Comment, pk=comment_pk, recipe__id=pk, deleted_at=None)
 
     # 수정/삭제는 작성자만
@@ -148,7 +149,6 @@ def comment_detail(request, pk, comment_pk):
         serializer = CommentSerializer(comment, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            recipe.comment_count += 1
             recipe.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from recipes.models import Recipe, Tag
 from recipes.serializers import RecipeSerializer, TagSerializer
-
+from pagination import FeedCursorPagination
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -26,14 +26,16 @@ def recipe_feed(request):
     # 정렬
     sort = request.query_params.get('sort', 'latest')
     if sort == 'popular':
-        queryset = queryset.order_by('-like_count')
+        queryset = queryset.order_by('-like_count', '-id')
     elif sort == 'liked':
-        queryset = queryset.order_by('-like_count')
+        queryset = queryset.order_by('-like_count', '-id')
     else:  # latest
-        queryset = queryset.order_by('-created_at')
+        queryset = queryset.order_by('-created_at', '-id')
 
-    serializer = RecipeSerializer(queryset, many=True)
-    return Response(serializer.data)
+    paginator = FeedCursorPagination()
+    page = paginator.paginate_queryset(queryset, request)
+    serializer = RecipeSerializer(page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 
 @api_view(['GET', 'POST'])
