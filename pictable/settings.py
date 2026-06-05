@@ -158,3 +158,22 @@ MEDIA_URL  = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media_files'
 
 AUTH_USER_MODEL = 'accounts.User'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/home/ubuntu/pictable/django.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
