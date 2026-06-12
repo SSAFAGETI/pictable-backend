@@ -1,6 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/django,linux
 # Edit at https://www.toptal.com/developers/gitignore?templates=django,linux
 
+media_files/
+
 ### Django ###
 *.log
 *.pot
