@@ -10,4 +10,5 @@ urlpatterns = [
     path('<int:pk>/comments/', views.comment_list, name='comment-list'),
     path('<int:pk>/comments/<int:comment_pk>/', views.comment_detail, name='comment-detail'),
     path('<int:pk>/comments/<int:comment_pk>/replies/', views.reply_create, name='reply-create'),
+    path('recommendations/', views.recommend_recipes, name='recipe-recommend'),
 ]
