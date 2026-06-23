@@ -52,6 +52,7 @@ def media_upload(request):
             media_file = media,
             status     = 'pending',
         )
+        file.seek(0)  # chunks()로 읽은 후 포인터를 처음으로 되돌림
         run_ingredient_detection(job.id, file)
         response_data['detection_job_id'] = job.id
 

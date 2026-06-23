@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Recipe, RecipeStep, RecipeIngredient, RecipeImage, Comment, Tag
 from medias.serializers import MediaFileSerializer
+from medias.models import MediaFile
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,10 +10,14 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 class RecipeStepSerializer(serializers.ModelSerializer):
     image = MediaFileSerializer(read_only=True) # ← ID → URL 포함 객체로 변경
+    image_id = serializers.PrimaryKeyRelatedField(
+        queryset=MediaFile.objects.all(), source='image',
+        write_only=True, required=False, allow_null=True
+    )
 
     class Meta:
         model = RecipeStep
-        fields = ['id', 'order', 'description', 'image']
+        fields = ['id', 'order', 'description', 'image', 'image_id']
         
 class RecipeImageSerializer(serializers.ModelSerializer):
     media_file = MediaFileSerializer(read_only=True)
@@ -33,6 +38,10 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags        = TagSerializer(many=True, read_only=True)
     tag_ids     = serializers.PrimaryKeyRelatedField(many=True, write_only=True, queryset=Tag.objects.all(), source='tags', required=False)
     thumbnail_media = MediaFileSerializer(read_only=True)
+    thumbnail_media_id = serializers.PrimaryKeyRelatedField(
+        queryset=MediaFile.objects.all(), source='thumbnail_media',
+        write_only=True, required=False, allow_null=True
+    )
 
     class Meta:
         model  = Recipe

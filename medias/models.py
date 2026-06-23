@@ -21,10 +21,8 @@ class IngredientCatalog(models.Model):
         db_table = 'ingredient_catalog'
 
 class IngredientAlias(models.Model):
-    ingredient = models.ForeignKey(
-        IngredientCatalog, on_delete=models.CASCADE, related_name='aliases'
-    )
-    alias = models.CharField(max_length=80)
+    alias_name = models.CharField(max_length=80, db_index=True)
+    ingredient_name = models.CharField(max_length=80)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
