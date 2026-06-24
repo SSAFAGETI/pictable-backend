@@ -5,14 +5,9 @@ on:
     branches: [ main ]
 
 jobs:
-  # ─────────────────────────────────────────
-  # CI : 테스트
-  # ─────────────────────────────────────────
   test:
-    - name: Run Tests
-      run: |
-        cd pictable
-        pytest tests/ -v --tb=short
+    name: Run Tests
+    runs-on: ubuntu-latest
 
     env:
       DJANGO_SETTINGS_MODULE: pictable.settings
@@ -53,11 +48,10 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run tests
-        run: pytest pictable/tests/ -v --tb=short
+        run: |
+          cd pictable
+          pytest tests/ -v --tb=short
 
-  # ─────────────────────────────────────────
-  # CD : EC2 배포 (test 통과 시에만 실행)
-  # ─────────────────────────────────────────
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
