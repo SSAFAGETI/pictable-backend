@@ -72,21 +72,21 @@ jobs:
             set -e
             cd /home/ubuntu/pictable
 
-            echo "▶ 코드 pull"
+            echo "> 코드 pull"
             git pull origin main
 
-            echo "▶ 패키지 설치"
+            echo "> 패키지 설치"
             source .venv/bin/activate
             pip install -r requirements.txt --quiet
 
-            echo "▶ DB 마이그레이션"
+            echo "> DB 마이그레이션"
             python pictable/manage.py migrate --noinput
 
-            echo "▶ 정적 파일 수집"
+            echo "> 정적 파일 수집"
             python pictable/manage.py collectstatic --noinput
 
-            echo "▶ Gunicorn 재시작"
+            echo "> Gunicorn 재시작"
             pkill -HUP gunicorn || true
             sleep 2
 
-            echo "✅ 배포 완료"
+            echo "> 배포 완료"
