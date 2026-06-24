@@ -1,0 +1,92 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  # ─────────────────────────────────────────
+  # CI : 테스트
+  # ─────────────────────────────────────────
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    env:
+      DJANGO_SETTINGS_MODULE: pictable.settings
+      SECRET_KEY: "github-actions-dummy-secret-key"
+      DEBUG: "False"
+      DB_HOST: "localhost"
+      DB_PORT: "5432"
+      DB_NAME: "pictable_test"
+      DB_USER: "postgres"
+      DB_PASSWORD: "postgres"
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: pictable_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest pictable/tests/ -v --tb=short
+
+  # ─────────────────────────────────────────
+  # CD : EC2 배포 (test 통과 시에만 실행)
+  # ─────────────────────────────────────────
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            cd /home/ubuntu/pictable
+
+            echo "> 코드 pull"
+            git pull origin main
+
+            echo "> 패키지 설치"
+            source .venv/bin/activate
+            pip install -r requirements.txt --quiet
+
+            echo "> DB 마이그레이션"
+            python pictable/manage.py migrate --noinput
+
+            echo "> 정적 파일 수집"
+            python pictable/manage.py collectstatic --noinput
+
+            echo "> Gunicorn 재시작"
+            pkill -HUP gunicorn || true
+            sleep 2
+
+            echo "> 배포 완료"
