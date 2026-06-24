@@ -48,9 +48,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run tests
-        run: |
-          cd pictable
-          pytest tests/ -v --tb=short
+        run: pytest tests/ -v --tb=short
 
   deploy:
     name: Deploy
