@@ -9,10 +9,10 @@ jobs:
   # CI : 테스트
   # ─────────────────────────────────────────
   test:
-    name: Run Tests
-    run: |
-      cd pictable
-      pytest tests/ -v --tb=short
+    - name: Run Tests
+      run: |
+        cd pictable
+        pytest tests/ -v --tb=short
 
     env:
       DJANGO_SETTINGS_MODULE: pictable.settings
