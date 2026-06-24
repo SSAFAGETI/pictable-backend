@@ -10,7 +10,9 @@ jobs:
   # ─────────────────────────────────────────
   test:
     name: Run Tests
-    runs-on: ubuntu-latest
+    run: |
+      cd pictable
+      pytest tests/ -v --tb=short
 
     env:
       DJANGO_SETTINGS_MODULE: pictable.settings
