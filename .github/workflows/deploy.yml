@@ -76,9 +76,6 @@ jobs:
             echo "> DB 마이그레이션"
             python manage.py migrate --noinput
 
-            echo "> 정적 파일 수집"
-            python manage.py collectstatic --noinput
-
             echo "> Gunicorn 재시작"
             pkill -HUP gunicorn || true
             sleep 2
