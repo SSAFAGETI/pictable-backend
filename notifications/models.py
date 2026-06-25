@@ -3,6 +3,7 @@ from django.conf import settings
 
 class Notification(models.Model):
     TYPE_CHOICES = [
+        ('system', '시스템'),
         ('like', '좋아요'),
         ('comment', '댓글'),
         ('reply', '답글'),
