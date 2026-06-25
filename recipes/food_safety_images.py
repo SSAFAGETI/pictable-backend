@@ -96,7 +96,7 @@ def _best_image(rows, title):
                 if image:
                     return image
 
-    return _image_from_row(rows[0]) if rows else ''
+    return ''
 
 
 @lru_cache(maxsize=512)
