@@ -9,6 +9,13 @@ from django.urls import path
 
 ADMIN_DOCS = (
     {
+        'slug': 'backend-api',
+        'title': '백엔드 API 명세',
+        'description': '마이페이지에서 관리자 페이지로 이동한 백엔드 API 문서',
+        'filename': 'pictable-backend-api-spec-v2.html',
+        'type': 'html',
+    },
+    {
         'slug': 'backend-api-v2',
         'title': '백엔드 API 명세 v2',
         'description': '프론트 연동 기준 최신 API와 Django Admin CRUD 범위',
@@ -20,6 +27,13 @@ ADMIN_DOCS = (
         'title': '프론트엔드 명세 v2',
         'description': 'Vue 3 SPA 구조, 런타임 흐름, 배포/테스트 기준',
         'filename': 'pictable-frontend-spec-v2.html',
+        'type': 'html',
+    },
+    {
+        'slug': 'user-flow-wireframe',
+        'title': '사용자 플로우 와이어프레임',
+        'description': '마이페이지에서 관리자 페이지로 이동한 사용자 흐름 문서',
+        'filename': 'pictable-user-flow-wireframe-v2.html',
         'type': 'html',
     },
     {
