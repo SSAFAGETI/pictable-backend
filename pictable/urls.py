@@ -18,7 +18,6 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from . import admin_docs  # noqa: F401 - registers custom Django admin document pages
 
 urlpatterns = [
     path('admin/', admin.site.urls),

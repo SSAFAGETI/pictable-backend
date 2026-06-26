@@ -5,7 +5,6 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import Recipe, RecipeLike, RecipeSave, Comment, RecipeIngredient
 from .serializers import RecipeSerializer, CommentSerializer
-from .food_safety_images import resolve_food_safety_image_url
 from notifications.utils import notify_welcome, notify_like, notify_comment, notify_reply
 from django.db import connection
 
@@ -96,15 +95,6 @@ def ingredient_list(request):
     ).values('id', 'name', 'amount').distinct().order_by('name')[:50]
 
     return Response(list(ingredients))
-
-
-@api_view(['GET'])
-def public_recipe_image(request):
-    title = str(request.query_params.get('title', '')).strip()
-    if not title:
-        return Response({'detail': 'title is required.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    return Response({'url': resolve_food_safety_image_url(title)})
 
 def normalize_ingredients(raw_ingredients: list) -> list:
     if not raw_ingredients:

@@ -54,8 +54,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     def save(self, *args, **kwargs):
         if not self.nickname:  # 닉네임 없을 때만 자동 생성
             self.nickname = generate_nickname()
-        if not self.password_hash and self.password:
-            self.password_hash = self.password
         super().save(*args, **kwargs)
         
     def __str__(self):
